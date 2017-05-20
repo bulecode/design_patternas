@@ -13,7 +13,7 @@ public class Duckcall {
     private boolean flag;
 
     public Duckcall() {
-        this.quackBehavior = new Quack(); 
+        this.quackBehavior = new Quack();
 
     }
 
