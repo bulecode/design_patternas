@@ -31,13 +31,7 @@ public class ClassUtil {
      */
     public static List<Class> getAllClassBySubClass(Class clazz) {
 
-        List<Class> ret = getClasspathAllClass(true).stream()
-                .filter(c -> !c.isInterface())
-                .filter(c -> !Modifier.isAbstract(c.getModifiers()))
-                .filter(c -> clazz.isAssignableFrom(c))
-                .collect(Collectors.toList());
-
-        return ret;
+        return getAllClassBySubClass(clazz, true);
     }
 
     /**
