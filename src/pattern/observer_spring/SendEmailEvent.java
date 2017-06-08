@@ -1,21 +1,17 @@
 package pattern.observer_spring;
 
-import java.util.EventObject;
-
 /**
  * Author: buleCode
- * Date: 2017/5/28
+ * Date: 2017/6/8
  */
-public abstract class ApplicationEvent extends EventObject {
+public class SendEmailEvent extends ApplicationEvent {
     /**
      * Constructs a prototypical Event.
      *
      * @param source The object on which the Event initially occurred.
      * @throws IllegalArgumentException if source is null.
      */
-    ApplicationEvent(Object source) {
+    public SendEmailEvent(Object source) {
         super(source);
     }
-
-
 }

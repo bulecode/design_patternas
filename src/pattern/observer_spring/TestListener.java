@@ -7,6 +7,6 @@ package pattern.observer_spring;
 public class TestListener implements Listener<ApplicationEvent> {
     @Override
     public void onEvent(ApplicationEvent applicationEvent) {
-        System.out.println(applicationEvent);
+        System.out.println("我老大，我监听所有事件" + applicationEvent);
     }
 }
