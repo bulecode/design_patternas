@@ -1,8 +1,6 @@
 package pattern.observer_spring;
 
 
-import java.io.IOException;
-
 /**
  * Author: buleCode
  * Date: 2017/5/28
@@ -10,7 +8,7 @@ import java.io.IOException;
 public class EventListenerTest {
 
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args)  {
         EventPublisher.publishEvent(new SendEmailEvent("730333433@qq.com"));
         EventPublisher.publishEvent(new SendMessageEvent("1888888888"));
     }
