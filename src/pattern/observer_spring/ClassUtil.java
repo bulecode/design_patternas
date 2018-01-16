@@ -21,28 +21,29 @@ public class ClassUtil {
     private static String[] classPaths = System.getProperty("java.class.path").split(";");
     //系统文件分隔符
     private static String separator = System.getProperty("file.separator");
-    //需要排除扫描的一些路径 需要使用 / 做分隔符 eg：com/sun
-    private static String[] excludeJar = new String[]{"sun","com/sun","javafx","java","jdk","com/intellij"};
 
     /**
      * 获取一个接口或者父类的所有子类(不含接口和抽象类)
+     *
      * @param clazz 接口类或者父类
      * @return
      */
-    public static List<Class> getAllClassBySubClass(Class clazz) {
+    public static List<Class> getAllClassBySubClass(Class clazz, String... packages) {
 
-        return getAllClassBySubClass(clazz, true);
+        return getAllClassBySubClass(clazz, false);
     }
 
     /**
      * 获取一个接口或者父类的所有子类(不含接口和抽象类)
-     * @param clazz 接口类或者父类
+     *
+     * @param clazz     接口类或者父类
      * @param findInJar 是否需要从jar包中查找
+     * @param packages  限定寻找的包名，前缀匹配模式 findInJar为true时建议一定要限制包名提升速度和避免出错！
      * @return
      */
-    public static List<Class> getAllClassBySubClass(Class clazz,boolean findInJar) {
+    public static List<Class> getAllClassBySubClass(Class clazz, boolean findInJar, String... packages) {
 
-        List<Class> ret = getClasspathAllClass(true).stream()
+        List<Class> ret = getClasspathAllClass(findInJar, packages).stream()
                 .filter(c -> !c.isInterface())
                 .filter(c -> !Modifier.isAbstract(c.getModifiers()))
                 .filter(c -> clazz.isAssignableFrom(c))
@@ -53,15 +54,16 @@ public class ClassUtil {
 
 
     /**
-     * 获取所有classpath下的class
+     * 获取所有classpath下所有全限定名以packages开头的的class
+     *
      * @return
      */
-    private static List<Class> getClasspathAllClass(boolean findInJar) {
+    private static List<Class> getClasspathAllClass(boolean findInJar, String... packages) {
         List<Class> ret = new LinkedList<>();
 
         for (String classPath : classPaths) {
             File file = new File(classPath);
-            ret.addAll(findClass(file, classPath,findInJar));
+            ret.addAll(findClass(file, classPath, findInJar, packages));
         }
 
         return ret;
@@ -69,11 +71,12 @@ public class ClassUtil {
 
     /**
      * 递归查找class
+     *
      * @param file
      * @param classpath
      * @return
      */
-    private static List<Class> findClass(File file, String classpath,boolean findInJar) {
+    private static List<Class> findClass(File file, String classpath, boolean findInJar, String... packages) {
         List<Class> ret = new LinkedList<>();
         if (!file.exists()) {
             return ret;
@@ -84,20 +87,21 @@ public class ClassUtil {
             File[] files = file.listFiles();
             if (files != null && files.length > 0) {
                 for (File f : files) {
-                    ret.addAll(findClass(f, classpath,findInJar));
+                    ret.addAll(findClass(f, classpath, findInJar));
                 }
             }
         } else if (file.isFile()) {
             //是普通字节码文件
-            if (file.getName().endsWith(".class")) {
+            String fileName = file.getName();
+            if (fileName.endsWith(".class") && isInPackages(fileName, packages)) {
                 String fullyQualifiedName = getFullyQualifiedName(file, classpath);
                 try {
                     ret.add(Class.forName(fullyQualifiedName));
                 } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
-            //jar包
-            } else if (findInJar && file.getName().endsWith(".jar")) {
+                //jar包
+            } else if (findInJar && fileName.endsWith(".jar")) {
                 try {
                     JarFile jarFile = new JarFile(file);
                     //枚举jar包内所有文件
@@ -105,7 +109,7 @@ public class ClassUtil {
                     while (entries.hasMoreElements()) {
                         String jarClassName = entries.nextElement().getName();
                         //jar包里的字节码文件
-                        if (!isExclude(jarClassName) && jarClassName.endsWith(".class")) {
+                        if (jarClassName.endsWith(".class") && isInPackages(jarClassName, packages)) {
                             String fullyQualifiedName = jarClassName
                                     .replace(".class", "")
                                     .replaceAll("/", ".");
@@ -128,25 +132,30 @@ public class ClassUtil {
 
     /**
      * 获取普通字节码文件的全限定名
+     *
      * @param file
      * @param classpath
      * @return
      */
-    private static String getFullyQualifiedName(File file,String classpath) {
+    private static String getFullyQualifiedName(File file, String classpath) {
         String filePath = file.getPath();
         return filePath.replace(classpath, "")
                 .replaceAll("\\\\", ".")
-                .replaceFirst(".","")
-                .replace(".class","");
+                .replaceFirst(".", "")
+                .replace(".class", "");
     }
 
-    private static boolean isExclude(String jarClassName) {
-        for (String s : excludeJar) {
-            if (jarClassName.startsWith(s)) {
+    private static boolean isInPackages(String fileName, String... packages) {
+        if (packages.length == 0) {
+            return true;
+        }
+
+        for (String p : packages) {
+            if (fileName.startsWith(p)) {
                 return true;
             }
         }
+
         return false;
     }
-
 }
