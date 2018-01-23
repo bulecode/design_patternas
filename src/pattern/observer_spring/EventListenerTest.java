@@ -9,7 +9,7 @@ public class EventListenerTest {
 
 
     public static void main(String[] args)  {
-        EventPublisher.publishEvent(new SendEmailEvent("730333433@qq.com"));
+        EventPublisher.publishEvent(new SendEmailEvent("nonpool.cn@gmail.com"));
         EventPublisher.publishEvent(new SendMessageEvent("1888888888"));
     }
 
