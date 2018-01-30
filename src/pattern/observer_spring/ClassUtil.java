@@ -42,7 +42,7 @@ public class ClassUtil {
      */
     public static List<Class> getAllClassBySubClass(Class clazz, String... packages) {
 
-        return getAllClassBySubClass(clazz, false);
+        return getAllClassBySubClass(clazz, false, packages);
     }
 
     /**
