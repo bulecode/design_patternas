@@ -11,10 +11,11 @@ import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 
 /**
- * Author: buleCode
- * Date: 2017/6/5
+ * @author nonpool
+ * @version 1.0
+ * @since 2018/1/29
  */
-public class ClassUtil {
+public abstract class ClassUtil {
 
     //系统文件分隔符
     private static String separator = System.getProperty("file.separator");
@@ -113,8 +114,8 @@ public class ClassUtil {
                 String fullyQualifiedName = getFullyQualifiedName(file, classpath);
                 try {
                     ret.add(Class.forName(fullyQualifiedName));
-                } catch (ClassNotFoundException e) {
-                    //
+                } catch (Throwable e) {
+                    //无法通过全限定名获取其Class对象的 忽略！
                 }
                 //jar包
             } else if (findInJar && fileName.endsWith(".jar")) {
@@ -131,8 +132,8 @@ public class ClassUtil {
                                     .replaceAll("/", ".");
                             try {
                                 ret.add(Class.forName(fullyQualifiedName));
-                            } catch (ClassNotFoundException e) {
-                                //
+                            } catch (Throwable e) {
+                                //无法通过全限定名获取其Class对象的 忽略！
                             }
                         }
                     }
